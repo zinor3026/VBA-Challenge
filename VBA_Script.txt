@@ -1,0 +1,93 @@
+Sub Stock():
+'Define and set variables
+    Dim Ticker As String
+    Dim year_change As Double
+    Dim total_volume As Double
+    Dim Summary_Table_Row As Integer
+    Dim Max_range As Range
+    Dim LastRow1 As Long
+    Dim start As Long
+    Dim percent_change As Double
+    
+
+    
+'Looping all worksheets
+For Each ws In Worksheets
+   'Set an initial value for the counter
+    total_volume = 0
+    Summary_Table_Row = 2
+    start = 2
+ 'Adding Headers for the coulmns and table
+ ws.Range("J1").Value = "Ticker"
+ ws.Range("K1").Value = "Yearly Change"
+ ws.Range("L1").Value = "Percent Chnage"
+ ws.Range("M1").Value = "Total stock Volume"
+ ws.Range("P2").Value = "Greatest % increase"
+ ws.Range("P3").Value = "Greatest % decrease"
+ ws.Range("P4").Value = "Greatest Total Volume"
+ ws.Range("Q1").Value = "Ticker"
+ ws.Range("R1").Value = "Value"
+ 
+'Define last row
+LastRow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+'Starting a for loop to loop through the information
+    For i = 2 To LastRow
+    
+        If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+        'Check for unique values of ticker
+            Ticker = ws.Cells(i, 1).Value
+        'Calculate the total volume
+            total_volume = total_volume + ws.Cells(i, 7).Value
+        'Calculate yearly change
+            year_change = ws.Cells(i, 6) - ws.Cells(start, 3)
+        'Calculate the percent change
+            percent_change = (year_change / ws.Cells(start, 3))
+            
+     'Specifying cells to store values
+            ws.Cells(Summary_Table_Row, 10).Value = Ticker
+            ws.Cells(Summary_Table_Row, 13).Value = total_volume
+            ws.Cells(Summary_Table_Row, 11).Value = year_change
+            ws.Cells(Summary_Table_Row, 12).Value = percent_change
+      'Changing number format of yearly change and percentage change
+            ws.Cells(Summary_Table_Row, 12).NumberFormat = "0.00%"
+            ws.Cells(Summary_Table_Row, 11).NumberFormat = "0.00"
+      'Formatting colors in yearly change coloumn according to values
+            If year_change > 0 Then
+                ws.Cells(Summary_Table_Row, 11).Interior.ColorIndex = 4
+            ElseIf year_change < 0 Then
+                ws.Cells(Summary_Table_Row, 11).Interior.ColorIndex = 3
+            End If
+   'counters section
+            total_volume = 0
+            Summary_Table_Row = Summary_Table_Row + 1
+            start = i + 1
+        Else
+            total_volume = total_volume + ws.Cells(i, 7).Value
+            
+            
+    End If
+Next i
+'Calculating last row for the summary table
+    LastRow1 = ws.Range("J" & Rows.Count).End(xlUp).Row
+'Setting range to calculate
+    Set Max_range = ws.Range("M2:M" & LastRow1)
+    Set percentage_change = ws.Range("L2:L" & LastRow1)
+'Calculating the max from total volume and storing with ticker
+    ws.Range("R4").Value = WorksheetFunction.Max(Max_range)
+    Vol_index = WorksheetFunction.Match(WorksheetFunction.Max(Max_range), Max_range, 0)
+    ws.Range("Q4").Value = ws.Cells(Vol_index + 1, 10)
+ 'Calculating the max from Percentage change and storing with ticker
+    ws.Range("R2").Value = WorksheetFunction.Max(percentage_change)
+    Vol_index = WorksheetFunction.Match(WorksheetFunction.Max(percentage_change), percentage_change, 0)
+    ws.Range("Q2").Value = ws.Cells(Vol_index + 1, 10)
+    ws.Range("R2").NumberFormat = "0.00%"
+ 'Calculating the min from total volume and storing with ticker
+    ws.Range("R3").Value = WorksheetFunction.Min(percentage_change)
+    Vol_index = WorksheetFunction.Match(WorksheetFunction.Min(percentage_change), percentage_change, 0)
+    ws.Range("Q3").Value = ws.Cells(Vol_index + 1, 10)
+    ws.Range("R3").NumberFormat = "0.00%"
+ 
+Next ws
+ 
+
+End Sub
